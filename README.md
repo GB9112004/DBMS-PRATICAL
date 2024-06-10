@@ -2,6 +2,13 @@
 
 use only single quotes.
 
+conditin-then and end if;
+loop-loop and end loop;
+
+Simplifying complex queries: Views can simplify complex queries by hiding the underlying complexity and making it easier for users to access the data they need.
+Improving data security: Views can be used to restrict access to sensitive data by only exposing a limited set of columns or rows to users.
+Providing a layer of abstraction: Views can provide a layer of abstraction between the physical database structure and the user interface, making it easier to change the underlying database structure without affecting the users.
+
 explicit assignmnet use :=
 comparision =(also inside select assignmnent)
 u can only return a value in function;
@@ -10,6 +17,14 @@ DROP VIEW NAME
 DELETE FROM TB_NAME
 
 TO CALCULATE EMPLOYEE_ID
+
+The error is because you are trying to use a SQL statement (SELECT) directly in a PL/SQL block. In PL/SQL, you need to use a SELECT INTO statement to assign the result of a query to a variable.
+
+Here is the corrected
+
+using first select stat.
+both if and else with ; at end
+
 
 DECLARE
   incentive   NUMBER(8,2);
@@ -333,3 +348,13 @@ db.restaurants.find({ $or: [ { "borough": "Manhattan" }, { "borough": "Brooklyn"
 db.restaurants.find({ $and: [ { "grades.score": 2 }, { "grades.score": 6 } ] })
 
 db.restaurants.find({ $and: [ { "grades.score": 2 }, { "grades.score": 6 }, { "borough": "Manhattan" } ] })
+
+
+create table emp_details(
+    emp_no number(10),
+    emp_name varchar(10),
+    DOB DATE,
+    address varchar(10)
+);
+
+insert into emp_details values(1,'AVV','10/12/23','chennai');
