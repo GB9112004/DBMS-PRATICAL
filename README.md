@@ -263,3 +263,73 @@ SELECT * FROM view_copy_d_songs;
 DROP VIEW view_copy_d_songs;
 
 SELECT * FROM view_copy_d_songs; -- This should raise an error because the view no longer exists.
+
+
+MONGODB
+
+db.restaurants.find().sort({
+    "name": 1
+})
+
+db.restaurants.find({
+    "grades.date": ISODate("2014-08-11T00:00:00Z"),
+    "grades.grade": "A",
+    "grades.score": 11
+}, {
+    "_id": 1,
+    "name": 1,
+    "grades": 1
+})
+
+db.restaurants.find({
+    "grades.1.date": ISODate("2014-08-11T00:00:00Z"),
+    "grades.1.grade": "A",
+    "grades.1.score": 9
+}, {
+    "_id": 1,
+    "name": 1,
+    "grades": 1
+})
+
+db.restaurants.find({
+    "address.coordinates.1": {
+        $gte: 42,
+        $lte: 52
+    }
+}, {
+    "_id": 1,
+    "name": 1,
+    "address": 1,
+    "location": 1
+})
+
+
+db.restaurants.find().sort({ "name": -1 })
+
+db.restaurants.find().sort({ "cuisine": 1, "borough": -1 })
+
+db.restaurants.find({ "address.street": { $exists: true } }).count()
+
+
+db.restaurants.find({ "coord": { $type: 1 } })
+
+db.restaurants.find({ "grades.score": { $mod: [7, 0] } }, { "_id": 1, "name": 1, "grades": 1 })
+
+db.restaurants.find({ "name": { $regex: /mon/i } }, { "name": 1, "borough": 1, "coord": 1, "cuisine": 1 })
+
+db.restaurants.find({ "name": { $regex: /^Mad/i } }, { "name": 1, "borough": 1, "coord": 1, "cuisine": 1 })
+
+db.restaurants.find({ "grades.score": { $lt: 5 } })
+
+
+db.restaurants.find({ "borough": "Manhattan", "grades.score": { $lt: 5 } })
+
+db.restaurants.find({ $or: [ { "borough": "Manhattan" }, { "borough": "Brooklyn" } ], "grades.score": { $lt: 5 } })
+
+db.restaurants.find({ $or: [ { "borough": "Manhattan" }, { "borough": "Brooklyn" } ], "grades.score": { $lt: 5 }, "cuisine": { $ne: "American" } })
+
+db.restaurants.find({ $or: [ { "borough": "Manhattan" }, { "borough": "Brooklyn" } ], "grades.score": { $lt: 5 }, "cuisine": { $nin: ["American", "Chinese"] } })
+
+db.restaurants.find({ $and: [ { "grades.score": 2 }, { "grades.score": 6 } ] })
+
+db.restaurants.find({ $and: [ { "grades.score": 2 }, { "grades.score": 6 }, { "borough": "Manhattan" } ] })
