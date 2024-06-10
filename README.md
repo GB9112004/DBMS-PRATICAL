@@ -6,6 +6,9 @@ explicit assignmnet use :=
 comparision =(also inside select assignmnent)
 u can only return a value in function;
 
+DROP VIEW NAME
+DELETE FROM TB_NAME
+
 TO CALCULATE EMPLOYEE_ID
 
 DECLARE
@@ -209,3 +212,54 @@ BEGIN
   VALUES (SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), v_operation, SYS_CONTEXT('USERENV', 'SESSION_USER'), SYSTIMESTAMP);
 END;
 /
+
+
+VIEWS
+
+CREATE OR REPLACE VIEW view_d_songs AS
+SELECT ID AS "Song ID", title AS "Song Title", artist AS "Artist Name"
+FROM DJs
+WHERE id=1;
+
+
+CREATE OR REPLACE VIEW EVENT AS
+SELECT event_name as "EVENT_FOR",EVENT_DATE as "DYS"
+from events
+where event_date>=TRUNC(SYSDATE) AND event_date<=ADD_MONTHS(TRUNC(SYSDATE),3);
+
+13.1.2)CREATE OR REPLACE VIEW copy_djs as
+select * from DJS;
+
+CREATE OR REPLACE VIEW read_copy_d_cds AS
+SELECT * FROM copy_d_cds
+WHERE release_year = 2000
+WITH READ ONLY;
+
+
+DELETE FROM read_copy_d_cds WHERE cd_number = 90;
+
+
+CREATE OR REPLACE VIEW read_copy_d_cds WITH CHECK OPTION CONSTRAINT ck_read_copy_d_cds AS
+SELECT * FROM copy_d_cds
+WHERE release_year = 2000;
+
+SELECT * FROM read_copy_d_cds;
+
+
+SINGULARITY
+
+The Singularity, in terms of computing, refers to a hypothetical future point in time at which artificial intelligence (AI) surpasses human intelligence, leading to exponential growth in technological advancements and potentially transforming human civilization beyond recognition.
+
+MOORES LAW
+
+Moore's Law, originally articulated by Intel co-founder Gordon Moore in 1965, predicts that the number of transistors on a microchip would double approximately every two years, leading to continuous improvements in computing power and efficiency. For several decades, this prediction held true and significantly drove advancements in technology.
+
+CREATE VIEW view_copy_d_songs AS
+SELECT title, artist
+FROM copy_d_songs;
+
+SELECT * FROM view_copy_d_songs;
+
+DROP VIEW view_copy_d_songs;
+
+SELECT * FROM view_copy_d_songs; -- This should raise an error because the view no longer exists.
