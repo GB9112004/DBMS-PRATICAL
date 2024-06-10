@@ -114,3 +114,98 @@ end loop;
 return result;
 end
 /;
+
+
+
+TRIGGER
+1.CREATE OR REPLACE TRIGGER prevent_parent_deletion
+BEFORE DELETE ON departments
+FOR EACH ROW
+DECLARE
+  v_count NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_count FROM employees WHERE department_id = :OLD.department_id;
+
+  IF v_count > 0 THEN
+    RAISE_APPLICATION_ERROR(-20001, 'Cannot delete department with associated employees.');
+  END IF;
+END;
+/
+
+
+2.CREATE OR REPLACE TRIGGER check_duplicate_values
+BEFORE INSERT OR UPDATE ON my_table
+FOR EACH ROW
+DECLARE
+  v_count NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_count FROM my_table WHERE my_column = :NEW.my_column AND rowid!= :NEW.rowid;
+
+  IF v_count > 0 THEN
+    RAISE_APPLICATION_ERROR(-20001, 'Duplicate value found in column my_column.');
+  END IF;
+END;
+/
+
+3.CREATE OR REPLACE TRIGGER restrict_insertion
+BEFORE INSERT ON my_table
+FOR EACH ROW
+DECLARE
+  v_total NUMBER;
+BEGIN
+  SELECT SUM(my_column) INTO v_total FROM my_table;
+
+  IF v_total + :NEW.my_column > 1000 THEN
+    RAISE_APPLICATION_ERROR(-20001, 'Total value of my_column exceeds threshold.');
+  END IF;
+END;
+/
+
+
+4.CREATE TABLE audit_log (
+  table_name VARCHAR2(30),
+  column_name VARCHAR2(30),
+  old_value VARCHAR2(100),
+  new_value VARCHAR2(100),
+  timestamp DATE
+);
+
+CREATE OR REPLACE TRIGGER log_changes
+BEFORE UPDATE OF salary, department_id ON employees
+FOR EACH ROW
+BEGIN
+  INSERT INTO audit_log (table_name, column_name, old_value, new_value, timestamp)
+  VALUES ('employees', 'alary', :OLD.salary, :NEW.salary, SYSTIMESTAMP);
+
+  IF :OLD.department_id!= :NEW.department_id THEN
+    INSERT INTO audit_log (table_name, column_name, old_value, new_value, timestamp)
+    VALUES ('employees', 'department_id', :OLD.department_id, :NEW.department_id, SYSTIMESTAMP);
+  END IF;
+END;
+/
+
+
+5.CREATE TABLE audit_log (
+  table_name VARCHAR2(30),
+  operation VARCHAR2(10),
+  username VARCHAR2(30),
+  timestamp DATE
+);
+
+CREATE OR REPLACE TRIGGER log_user_activity
+AFTER INSERT OR UPDATE OR DELETE ON employees, departments, jobs
+DECLARE
+  v_operation VARCHAR2(10);
+BEGIN
+  IF INSERTING THEN
+    v_operation := 'INSERT';
+  ELSIF UPDATING THEN
+    v_operation := 'UPDATE';
+  ELSIF DELETING THEN
+    v_operation := 'DELETE';
+  END IF;
+
+  INSERT INTO audit_log (table_name, operation, username, timestamp)
+  VALUES (SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA'), v_operation, SYS_CONTEXT('USERENV', 'SESSION_USER'), SYSTIMESTAMP);
+END;
+/
